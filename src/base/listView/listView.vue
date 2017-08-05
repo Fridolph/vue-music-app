@@ -1,37 +1,164 @@
 <template>
-  <scroll class="listview" :data="data">
+  <scroll class="listview"
+    :listenScroll="listenScroll"
+    :data="data"
+    @scroll="scroll"
+    :probeType="probeType"
+    ref="listview">
     <ul>
-      <li v-for="group in data" class="list-group">
+      <li
+        class="list-group"
+        ref="listGroup"
+        v-for="group in data">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="item in group.items" class="list-group-item">
+          <li
+            class="list-group-item"
+            v-for="item in group.items">
             <img class="avatar" v-lazy="item.avatar" />
             <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>
     </ul>
+
+    <div 
+      class="list-shortcut"
+      @touchmove.stop.prevent="onShortcutTouchMove"
+      @touchstart.stop.prevent="onShortcutTouchStart">
+      <ul>
+        <li 
+          class="item"
+          :class="{'current' : currentIndex === index}"
+          :data-index="index"
+          v-for="(item, index) in shortcutList">
+          {{item}}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
 <script>
-  import Scroll from 'base/scroll/scroll'
+import  Scroll from 'base/scroll/scroll'
+import { getData } from 'common/js/dom'
 
-  export default {
-    props: {
-      data: {
-        type: Array,
+const ANCHOR_HEIGHT = 18
+
+export default {
+  props: {
+    data: {
+      probeType: {
+        type: Number,
         default: []
       }
-    },
-    components: {
-      Scroll
     }
+  },
+
+  data() {
+    return {
+      scrollY: -1,
+      currentIndex: 0
+    }
+  },
+
+  computed: {
+    shortcutList() {
+      return this.data.map(group => {
+        return group.title.substr(0, 1)
+      })
+    }
+  },
+
+  methods: {
+    onShortcutTouchStart(e) {
+      let anchorIndex = getData(e.target, 'index')
+      let firstTouch = e.touches[0]
+
+      this.touch.y1 = firstTouch.pageY
+      this.touch.anchorIndex = anchorIndex
+      this._scrollTo(anchorIndex)
+    },
+
+    onShortcutTouchMove(e) {
+      let firstTouch = e.touches[0]      
+      this.touch.y2 = firstTouch.pageY
+      // 手指在y轴上的偏移
+      let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT || 0
+      let anchorIndex = parseInt(this.touch.anchorIndex) + delta
+      this._scrollTo(anchorIndex)
+    },
+
+    scroll(pos) {
+      this.scrollY = pos.y
+    },
+
+    _scrollTo(index) {
+      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 300)
+    },
+
+    _calculateHeight() {
+      this.listHeight = []
+      // 声明list，需要知道每个listGroup的高度
+      const list = this.$refs.listGroup
+      // 第一组还没开始，所以初始是0
+      let height = 0
+      this.listHeight.push(height)
+
+      for (let i = 0; i < list.length; i++) {
+        let item = list[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+    },
+  },
+
+  watch: {
+    data() {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    },
+
+    scrollY(newY) {
+      const listHeight = this.listHeight
+      // 当滚动到顶部，newY>0
+      if (newY > 0) {
+        this.currentIndex = 0
+        return
+      }
+      // 在中间部分滚动
+      for (let i = 0; i < listHeight.length - 1; i++) {
+        let height1 = listHeight[i]
+        let height2 = listHeight[i + 1]
+        if (-newY >= height1 && -newY < height2) {
+          this.currentIndex = i
+          this.diff = height2 + newY
+          return
+        }
+      }
+      // 当滚动到底部，且-newY大于最后一个元素的上限
+      this.currentIndex = listHeight.length - 2
+    }
+  },
+
+  created() {
+    // touch事件需要共享的属性， 如 手指的pageY
+    // data是响应式的，这里不需要，所以在created钩子里创建
+    this.probeType = 3
+    this.listenScroll = true
+    this.touch = {}
+    this.listHeight = []
+  },
+
+  components: {
+    Scroll
   }
+}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import '../../common/stylus/variable'
+  @import "../../common/stylus/variable.styl"
 
   .listview
     position: relative
@@ -96,5 +223,4 @@
       width: 100%
       top: 50%
       transform: translateY(-50%)
-
 </style>

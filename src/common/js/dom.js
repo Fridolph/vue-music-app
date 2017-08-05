@@ -1,8 +1,8 @@
 /*
  * @Author: fridolph 
- * @Date: 2017-07-18 18:41:41 
- * @Last Modified by: mikey.zhaopeng
- * @Last Modified time: 2017-07-18 19:02:25
+ * @Date: 2017-08-02 22:00:29 
+ * @Last Modified by: fridolph
+ * @Last Modified time: 2017-08-02 22:05:10
  */
 
 export function hasClass(el, className) {
@@ -18,4 +18,15 @@ export function addClass(el, className) {
   let newClass = el.className.split(' ')
   newClass.push(className)
   el.className = newClass.join(' ')
+}
+
+export function getData(el, name, value) {
+  const prefix = 'data-'
+  name = prefix + name
+
+  if (value) {
+    return el.setAttribute(name, value)
+  } else {
+    return el.getAttribute(name)
+  }
 }
