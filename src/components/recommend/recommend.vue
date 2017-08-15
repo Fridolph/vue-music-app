@@ -60,8 +60,8 @@ export default {
       getRecommend()
         .then(res => {
           if (res.code === ERR_OK) {
-            console.log('-----res.data.slider-----')
-            console.log(res.data.slider)
+            // console.log('-----res.data.slider-----')
+            // console.log(res.data.slider)
             this.recommends = res.data.slider
           }
         })
@@ -71,8 +71,8 @@ export default {
       getDiscList()
         .then(res =>　{
           if (res.code === ERR_OK) {
-            console.log('-----res.data-----')
-            console.log(res.data.list)
+            // console.log('-----res.data-----')
+            // console.log(res.data.list)
             this.discList = res.data.list
           }
         })
