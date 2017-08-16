@@ -13,12 +13,12 @@ Vue.use(VueLazyload, {
   loading: require('common/image/default.png')  
 })
 
-Vue.config.productionTip = false
+Vue.config.productionTip = true
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router,
+  render: h => h(App),
   store,
-  render: h => h(App)
+  router
 })
