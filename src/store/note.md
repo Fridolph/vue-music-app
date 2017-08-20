@@ -8,3 +8,5 @@
 * mutation-type.js    mutations的一些字符串常量
 * mutations.js        定义要修改的操作(同步)
 * state.js            存放所有的状态
+
+注： 需要安装 [vue-dev-tools](https://github.com/vuejs/vue-devtools) ？？ 神坑，之前没装，卡了半天数据没反应，安装这个后，vuex就能派发到数据了
