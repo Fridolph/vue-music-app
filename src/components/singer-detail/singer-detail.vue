@@ -8,6 +8,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import {log} from 'common/js/util'
+import {getSingerDetail} from 'api/singer'
+import {ERR_OK} from 'api/config'
 
 export default {
   computed: {
@@ -16,9 +19,24 @@ export default {
     ])
   },
 
+  methods: {
+    _getDetail() {
+      if (!this.singer.id) {
+        this.$router.push('/singer')
+        return
+      }
+      getSingerDetail(this.singer.id)
+        .then(res => {
+          if (res.code === ERR_OK) {
+            log('singer, 歌曲, list', res.data.list)
+          }
+        })
+    }
+  },
+
   created() {
-    console.log('this.singer')
-    console.log(this.singer)
+    this._getDetail();
+    log('this.singer', this.singer)
   }
 }
 </script>
