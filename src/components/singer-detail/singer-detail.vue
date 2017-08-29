@@ -45,7 +45,7 @@ export default {
         .then(res => {
           if (res.code === ERR_OK) {
             this.songs = this._normalizeSongs(res.data.list)
-            log('songs, 歌曲', this.songs)
+            // log('songs, 歌曲', this.songs)
           }
         })
     },
